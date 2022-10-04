@@ -1,76 +1,74 @@
+
+
 public class Mundo {
     // Atributos
-    private Vida mundo[][] = new Vida[8][8];
-    private Vida copiaTempMundo[][];
+    private int COLS = 10;
+    private int ROWS = 10;
+    private int mundo[][] = new int[COLS][ROWS];
+    private int mundoTemp[][];
+    private int mundoNew[][] = new int[COLS][ROWS];
 
     public Mundo(){
-        for (int i = 0; i < mundo.length; i++) {
-            for (int j = 0; j < mundo.length; j++) {
-                mundo[i][j] = new Vida();
+        for (int i = 0; i < COLS; i++) {
+            for (int j = 0; j < ROWS; j++) {
+                mundo[i][j] = (int)Math.round(Math.random());
             }
         }
+        mundoTemp = mundo;
     }
     public void mostrarMundo(int numGen){
         System.out.println("Mundo original");
-        for (int i = 0; i < mundo.length; i++) {
+        for (int i = 0; i < COLS; i++) {
             // System.out.println("_ _ _ _ _ _ _ _ _ _ _ _ _");
-            for (int j = 0; j < mundo.length; j++) {
-                System.out.print("| "+mundo[i][j].getEstado()+ " ");
+            for (int j = 0; j < ROWS; j++) {
+                System.out.print("| "+mundo[i][j]+ " ");
             }
             System.out.println("|");
             // System.out.println();
             // System.out.println("_ _ _ _ _ _ _ _ _ _ _ _ _");
         }
-        if (numGen > 0) {
-            nextGen(numGen);
-        }
-    }
-
-    public void nextGen(int numGen) {
-        System.out.println("copia mundo");
-        copiaTempMundo = new Vida[8][8];
         for (int i = 0; i < numGen; i++) {
-            for (int j = 0; j < mundo.length; j++) {
-                for (int j2 = 0; j2 < mundo.length; j2++) {
-                    if ((mundo[j][j2].getEstado() == 1) && (vecinosVivos() < 2)) {
-                        copiaTempMundo[j][j2].setEstado(0);
-                    }
-                    else if ((mundo[j][j2].getEstado() == 1) && (vecinosVivos() > 3)) {
-                        copiaTempMundo[j][j2].setEstado(0);
-                    }
-                    else if ((mundo[j][j2].getEstado() == 0) && (vecinosVivos() == 3)) {
-                        copiaTempMundo[j][j2].setEstado(1);
-                    }
-                    else{
-                        copiaTempMundo[j][j2] = mundo[j][j2];
-                    }
-                }
-            }
-        }
-
-        System.out.println("siguiente generacion");
-        for (int i = 0; i < copiaTempMundo.length; i++) {
-            for (int j = 0; j < copiaTempMundo.length; j++) {
-                System.out.print("| "+copiaTempMundo[i][j].getEstado()+ " ");
-            }
+            nextGen(mundoTemp);
+            mundoTemp = mundoNew;
         }
     }
 
-    public int vecinosVivos() {
-        int vecinos = 0;
-        for (int i = 0; i < mundo.length; i++) {
-            for (int j = 0; j < mundo.length; j++) {
-                for (int j2 = -1; j2 <= 1; j2++) {
-                    for (int k = -1; k <= 1; k++) {
-                        if ((i+j2>=0 && j+j2<mundo.length) && (j+k>=0 && j+k<mundo.length)) {
-                            vecinos += mundo[i+j2][k+k].getEstado();
-                        }
-                    }
+    public void nextGen(int mundoTemp[][]) {
+        int estado;
+        int vecinos;
+        for (int i = 0; i < COLS; i++) {
+            for (int j = 0; j < ROWS; j++) {
+                estado = mundoTemp[i][j];
+                vecinos = vecinosVivos(mundoTemp, i, j);
+                if (estado == 0 && vecinos == 3) {
+                    mundoNew[i][j] = 1;
+                }else if (estado == 1 && (vecinos < 2 || vecinos > 3)) {
+                    mundoNew[i][j] = 0;
+                }else{
+                    mundoNew[i][j] = estado;
                 }
-                vecinos -= mundo[i][j].getEstado();
             }
         }
+        System.out.println("Siguiente Generación");
+        for (int i = 0; i < COLS; i++) {
+            // System.out.println("_ _ _ _ _ _ _ _ _ _ _ _ _");
+            for (int j = 0; j < ROWS; j++) {
+                System.out.print("| "+mundoNew[i][j]+ " ");
+            }
+            System.out.println("|");
+        }
+    }
 
+    public int vecinosVivos(int mundo[][], int x, int y) {
+        int vecinos = 0;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                int col = (x + i + COLS) % COLS;
+                int row = (x + i + ROWS) % ROWS;
+                vecinos += mundo[col][row];
+            }
+        }
+        vecinos -= mundo[x][y];
         return vecinos;
     }
 }
